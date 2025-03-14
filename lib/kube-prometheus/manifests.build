@@ -1,0 +1,108 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: 2025 Kiril Strezikozin
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# This is a shell script to generate manifest files in this directory.
+# Run with --help to get usage information.
+
+jsonnet_bin="jsonnet"
+gojsontoyaml_bin="gojsontoyaml"
+jb_bin="jb"
+
+dir="manifests"
+file="values.jsonnet"
+
+print_usage() {
+    cat <<__EOF__
+Usage: manifests.build [<VALUES_FILE>]
+
+Builds manifest YAML files from the specified jsonnet values file. Default
+is "${file}". Requires ${jsonnet_bin}, ${jb_bin} and ${gojsontoyaml_bin}
+executables available in PATH.
+
+Output is saved to the ./manifests/ directory. Any previous files that resided
+in that directory will be deleted.
+
+Examples:
+
+    1. Build manifests from values.jsonnet:
+
+       manifests.build values.jsonnet
+__EOF__
+}
+
+echoerr() { printf "%b\n" "\033[0;31mError: $*\033[0m" 1>&2; }
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+    -h | --help)
+        print_usage
+        exit 0
+        ;;
+    *)
+        if [ "$#" -gt 1 ]; then
+            echoerr "A single positional argument expected: VALUES_FILE"
+            exit 1
+        fi
+        file="$1"
+        break
+        ;;
+    esac
+    shift # Shift argument.
+done
+
+if [ -z "${file}" ]; then
+    echo "Usage: manifests.build <VALUES_FILE>"
+    echoerr "VALUES_FILE was not provided"
+    exit 1
+elif [ ! -f "${file}" ]; then
+    echoerr "File \"${file}\" not found"
+    exit 1
+fi
+
+if [ ! -d "vendor" ]; then
+    ${jb_bin} update
+fi
+
+# Check if all required commands are installed.
+# `xargs` and `find` is checked too in case this script is
+# executed by runners based on minimal container images.
+if ! command -v "${jsonnet_bin}" >/dev/null; then
+    echoerr "${jsonnet_bin} executable is required to run this script"
+    exti 1
+elif ! command -v "${gojsontoyaml_bin}" >/dev/null; then
+    echoerr "${gojsontoyaml_bin} executable is required to run this script"
+    exti 1
+elif ! command -v xargs >/dev/null; then
+    echoerr "xargs command is required to run this script"
+    exti 1
+elif ! command -v find >/dev/null; then
+    echoerr "find command is required to run this script"
+    exti 1
+fi
+
+echo "This script will echo the commands it will run"
+
+# Exit immediately on failure.
+set -e
+# Print commands to the terminal.
+set -x
+# Only exit with zero if all commands of the pipeline exit successfully.
+set -o pipefail
+
+# Make sure to start with a clean 'manifests' dir
+rm -rf "${dir}"
+mkdir -p "${dir}/setup"
+
+# Jsonnet outputs JSON. Use gojsontoyaml to convert to YAML.
+# Kubernetes supports JSON configuration files as well.
+${jsonnet_bin} -J vendor -m "${dir}" "${file}" | xargs -I{} sh -c 'cat {} | gojsontoyaml > {}.yaml' -- {}
+
+# Remove any remaining files other than YAML.
+find "${dir}" -type f ! -name '*.yaml' -delete
+rm -f kustomization
+
+set +x
+echo "Done. Output is in \"${dir}\""
+exit 0
