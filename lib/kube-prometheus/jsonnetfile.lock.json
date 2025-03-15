@@ -18,7 +18,7 @@
           "subdir": "contrib/mixin"
         }
       },
-      "version": "82a3e6fe279af3b92b87a82950fd8e46b4df9138",
+      "version": "a2eedb9093482afa56bbeec569f878e14e3946ff",
       "sum": "XmXkOCriQIZmXwlIIFhqlJMa0e6qGWdxZD+ZDYaN0Po="
     },
     {
@@ -118,8 +118,8 @@
           "subdir": ""
         }
       },
-      "version": "f73fad2dcd24c2437f46a8b0f6e027aa6c4e28e7",
-      "sum": "8OD8bBJK47pMZN9ub066JyMFjJqQMuoIWo2BkxHuHeM="
+      "version": "f837c12c8509bf1f215937bb27c1ebc50c9cc07a",
+      "sum": "GQBBNlkc57ftSy7nllx/Y2iss+3bZLhszyuYN3Ak6Z0="
     },
     {
       "source": {
@@ -200,7 +200,7 @@
           "subdir": "documentation/prometheus-mixin"
         }
       },
-      "version": "95f49dd84be7f2ef5471f6ce5cf448b6a14d8598",
+      "version": "b0227d1f16ea5da448f7a610ed9a7e22e6f35782",
       "sum": "2c+wttfee9TwuQJZIkNV7Tekem74Qgc7iZ842P28rNw=",
       "name": "prometheus"
     },
