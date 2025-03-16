@@ -7,6 +7,11 @@ local kp =
       },
       grafana+: {
         dashboards: {},
+        config: {
+          sections: {
+            date_formats: { default_timezone: 'UTC' },
+          },  // sections
+        },  // config
       },  // grafana
     },  // values
 
@@ -41,5 +46,5 @@ local kp =
 // { ['alertmanager-' + name]: kp.alertmanager[name] for name in std.objectFields(kp.alertmanager) } +
 { ['0-prometheus-' + name]: kp.prometheus[name] for name in std.objectFields(kp.prometheus) } +
 { ['1-kube-state-metrics-' + name]: kp.kubeStateMetrics[name] for name in std.objectFields(kp.kubeStateMetrics) } +
-{ ['2-kubernetes-serviceMonitorKubelet']: kp.kubernetesControlPlane.serviceMonitorKubelet } +
+{ '2-kubernetes-serviceMonitorKubelet': kp.kubernetesControlPlane.serviceMonitorKubelet } +
 { ['3-grafana-' + name]: kp.grafana[name] for name in std.objectFields(kp.grafana) }
